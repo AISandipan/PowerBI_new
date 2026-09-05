@@ -1,0 +1,209 @@
+#set sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+
+#Full SQL Model + KPI Queries +............
+
+/* ============================================================
+   DATABASE
+   ============================================================ */
+
+DROP DATABASE IF EXISTS mydhddbnew2new;
+
+CREATE DATABASE mydhddbnew2new;
+
+USE mydhddbnew2new;
+
+
+/* ============================================================
+   1. EMPLOYEE TABLE
+   ============================================================ */
+
+CREATE TABLE Employee (
+    Id INT PRIMARY KEY,
+    FName VARCHAR(45) NOT NULL,
+    LName VARCHAR(45) NOT NULL,
+    Email VARCHAR(100) NOT NULL,
+    Department VARCHAR(45) NOT NULL,
+    Salary DECIMAL(12,2) NOT NULL,
+    Gender VARCHAR(20) NOT NULL,
+    Age INT NOT NULL,
+    City VARCHAR(45) NOT NULL
+);
+
+
+/* ============================================================
+   2. PROJECTS TABLE
+   ============================================================ */
+
+CREATE TABLE Projects (
+    ProjectId INT PRIMARY KEY AUTO_INCREMENT,
+    ProjectName VARCHAR(200) NOT NULL,
+    EmployeeId INT NULL,
+    StartDate DATETIME,
+    EndDate DATETIME,
+
+    CONSTRAINT FK_Project_Employee
+        FOREIGN KEY (EmployeeId)
+        REFERENCES Employee(Id)
+);
+
+
+/* ============================================================
+   3. ADDRESS TABLE
+   ============================================================ */
+
+CREATE TABLE Address (
+    AddressId INT PRIMARY KEY AUTO_INCREMENT,
+    EmployeeId INT,
+    Country VARCHAR(50),
+    State VARCHAR(50),
+    City VARCHAR(50),
+
+    CONSTRAINT FK_Address_Employee
+        FOREIGN KEY (EmployeeId)
+        REFERENCES Employee(Id)
+);
+
+
+/* ============================================================
+   INSERT EMPLOYEE DATA
+   ============================================================ */
+
+INSERT INTO Employee
+(Id, FName, LName, Department, Email, Salary, Gender, Age, City)
+VALUES
+(1001, 'John', 'Roy', 'IT', 'e@ibm.co.in', 35000, 'Male', 25, 'London'),
+
+(1002, 'Mary', 'Chi', 'HR', 'e@ibm.co.in', 45000, 'Female', 27, 'Mumbai'),
+
+(1003, 'James', 'Roy', 'Finance', 'e@ibm.co.in', 50000, 'Male', 28, 'Delhi'),
+
+(1004, 'Mike', 'Bose', 'Finance', 'e@ibm.co.in', 50000, 'Male', 28, 'London'),
+
+(1005, 'Linda', 'Roy', 'HR', 'e@ibm.co.in', 75000, 'Female', 26, 'Mumbai'),
+
+(1006, 'Anurag', 'Roy', 'IT', 'e@ibm.co.in', 35000, 'Male', 25, 'London'),
+
+(1007, 'Priyanla', 'Gupta', 'HR', 'e@ibm.co.in', 45000, 'Female', 27, 'Mumbai'),
+
+(1008, 'Sambit', 'Gupta', 'IT', 'e@ibm.co.in', 50000, 'Male', 28, 'London'),
+
+(1009, 'Pranaya', 'Gupta', 'IT', 'e@ibm.co.in', 50000, 'Male', 28, 'London'),
+
+(1010, 'Hina', 'Gupta', 'HR', 'e@ibm.co.in', 75000, 'Female', 26, 'Mumbai'),
+
+(1011, 'Anurag', 'Gupta', 'IT', 'e@ibm.co.in', 67000, 'Male', 25, 'London'),
+
+(1012, 'Priyaa', 'Dewangan', 'HR', 'e@ibm.co.in', 45000, 'Female', 27, 'Mumbai'),
+
+(1013, 'Shaerty', 'Mohanty', 'IT', 'e@ibm.co.in', 50000, 'Male', 28, 'London'),
+
+(1014, 'Pranay', 'Kumar', 'IT', 'e@ibm.co.in', 78000, 'Male', 28, 'London'),
+
+(1015, 'Hinaka', 'Sharma', 'HR', 'e@ibm.co.in', 75000, 'Female', 26, 'Mumbai'),
+
+(1017, 'Shareen', 'Roy', 'Analytics', 'e@ibm.co.in', 175000, 'Female', 26, 'Oulu'),
+
+(1020, 'Alenia', 'Gupta', 'Analytics', 'e@ibm.co.in', 23455, 'Female', 26, 'Oulu'),
+
+(1021, 'Shiertuitre', 'Gupta', 'HR', 'e@ibm.co.in', 75000, 'Female', 26, 'Oulu'),
+
+(2014, 'Parag', 'Kumar', 'IT', 'e@ibm.co.in', 178000, 'Male', 28, 'London'),
+
+(2015, 'Henry', 'Sharma', 'HR', 'e@ibm.co.in', 275000, 'Female', 26, 'Mumbai'),
+
+(2017, 'Shabana', 'Bose', 'Analytics', 'e@ibm.co.in', 75000, 'Female', 26, 'Oulu'),
+
+(2020, 'Alina', 'Bose', 'Analytics', 'e@ibm.co.in', 43455, 'Female', 26, 'Oulu'),
+
+(2021, 'Shiladitya', 'Bose', 'HR', 'e@ibm.co.in', 35000, 'Female', 26, 'Oulu'),
+
+(2023, 'Riza', 'Murtaza', 'HR', 'e@ibm.co.in', 35000, 'Female', 26, 'Oulu');
+
+
+/* ============================================================
+   INSERT ADDRESS DATA
+   ============================================================ */
+
+INSERT INTO Address
+(EmployeeId, Country, State, City)
+VALUES
+(1001, 'India', 'Odisha', 'BBSR'),
+(1002, 'India', 'Maharashtra', 'Mumbai'),
+(1003, 'India', 'Maharashtra', 'Pune'),
+(1004, 'India', 'Odisha', 'Cuttack'),
+(1005, 'India', 'Maharashtra', 'Nagpur'),
+(1006, 'India', 'Odisha', 'Cuttack');
+
+
+/* ============================================================
+   INSERT PROJECT DATA
+   ============================================================ */
+
+INSERT INTO Projects
+(ProjectName, EmployeeId, StartDate, EndDate)
+VALUES
+
+('Develop Ecommerse Website from scratch',
+ 1003, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+
+('WordPress Website for our company',
+ 1002, NOW(), DATE_ADD(NOW(), INTERVAL 45 DAY)),
+
+('Manage our Company Servers',
+ 1007, NOW(), DATE_ADD(NOW(), INTERVAL 45 DAY)),
+
+('Hosting account is not working',
+ 1009, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+
+('MySQL database from my desktop application',
+ 1010, NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY)),
+
+('Develop new WordPress plugin for my business website',
+ NULL, NOW(), DATE_ADD(NOW(), INTERVAL 10 DAY)),
+
+('Migrate web application and database to new server',
+ NULL, NOW(), DATE_ADD(NOW(), INTERVAL 5 DAY)),
+
+('Android Application development',
+ 1004, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+
+('Hosting account is not working',
+ 1001, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY)),
+
+('MySQL database from my desktop application',
+ 1008, NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY)),
+
+('Develop new WordPress plugin for my business website',
+ NULL, NOW(), DATE_ADD(NOW(), INTERVAL 10 DAY)),
+
+('Develop new Logistic Website plugin for my business website',
+ NULL, NOW(), DATE_ADD(NOW(), INTERVAL 10 DAY)),
+
+('Develop Ecommerse Website from scratch',
+ 2014, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
+
+('Develop Ecommerse Website using AI',
+ 1001, NOW(), DATE_ADD(NOW(), INTERVAL 10 DAY));
+
+
+/* ============================================================
+   BASIC DATA CHECKS
+   ============================================================ */
+
+SELECT * FROM Employee;
+
+SELECT * FROM Projects;
+
+SELECT * FROM Address;
+
+
+
+
+SELECT * from  Employee;
+SELECT * from  Employee where  Department = 'HR';
+SELECT * from  Employee where  Department <> 'HR';
+SELECT Id,FName,Email,City from  Employee where  Department = 'HR';
+SELECT Id,FName,Email,City from  Employee where  Department <> 'HR';
+SELECT COUNT(*) AS TotalEmployee FROM Employee;
+SELECT round(AVG(Salary),2) AS AVG_Sal FROM Employee;
+SELECT round(AVG(Salary),2) AS AVG_Sal FROM Employee where  Department = 'HR';
