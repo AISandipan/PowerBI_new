@@ -1,0 +1,11 @@
+Project_ID,Project_Name,Project_Type,Business_Unit,Project_Manager,Start_Date,End_Date,Budget_USD,Actual_Cost_USD,Overall_Status,Planned_Percent,Actual_Percent,Performance_Gap
+101,"NextGen Firewall Upgrade","Firewall Upgrade","Network Security","Ahmed Khan",2026-01-05,2026-05-30,250000.00,265000.00,Delay,100.00,72.50,-27.50
+102,"SOC Implementation","SOC Implementation","Cyber Security","Sara Ahmed",2026-01-15,2026-08-31,600000.00,570000.00,Risk,100.00,76.25,-23.75
+103,"ISO 27001 Compliance Audit",Compliance,"Governance Risk Compliance","John Mathew",2026-02-01,2026-06-30,180000.00,165000.00,"On Track",100.00,91.25,-8.75
+104,"DDoS Protection Enhancement","Network Security","Network Operations","Fatima Ali",2026-02-15,2026-07-31,320000.00,350000.00,Delay,100.00,65.00,-35.00
+105,"Identity & Access Management Upgrade",IAM,"IT Security","Omar Hassan",2026-03-01,2026-09-30,280000.00,260000.00,"On Track",100.00,82.50,-17.50
+106,"SIEM Migration Project",SIEM,"SOC Operations","Michael George",2026-03-15,2026-10-31,450000.00,430000.00,Risk,100.00,63.75,-36.25
+107,"Cloud Security Assessment","Cloud Security","Cloud Infrastructure","Nadia Karim",2026-04-01,2026-08-15,150000.00,175000.00,Delay,100.00,60.00,-40.00
+108,"Vulnerability Management Upgrade","Vulnerability Management","Cyber Security","Daniel Thomas",2026-04-15,2026-09-15,210000.00,200000.00,"On Track",100.00,86.25,-13.75
+109,"Privileged Access Management",PAM,"IT Security","Aisha Rahman",2026-05-01,2026-11-30,300000.00,290000.00,Risk,100.00,66.25,-33.75
+110,"Security Awareness Programme","Security Awareness","Human Risk Management","Robert James",2026-05-15,2026-08-31,90000.00,85000.00,"On Track",100.00,92.50,-7.50

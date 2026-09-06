@@ -1,0 +1,11 @@
+Project_ID,Project_Name,Project_Type,Business_Unit,Project_Manager,Start_Date,End_Date,Budget_USD,Actual_Cost_USD,Overall_Status
+101,NextGen Firewall Upgrade,Firewall Upgrade,Network Security,Ahmed Khan,1/5/2026,5/30/2026,250000,265000,Delay
+102,SOC Implementation,SOC Implementation,Cyber Security,Sara Ahmed,1/15/2026,8/31/2026,600000,570000,Risk
+103,ISO 27001 Compliance Audit,Compliance,Governance Risk Compliance,John Mathew,2/1/2026,6/30/2026,180000,165000,On Track
+104,DDoS Protection Enhancement,Network Security,Network Operations,Fatima Ali,2/15/2026,7/31/2026,320000,350000,Delay
+105,Identity & Access Management Upgrade,IAM,IT Security,Omar Hassan,3/1/2026,9/30/2026,280000,260000,On Track
+106,SIEM Migration Project,SIEM,SOC Operations,Michael George,3/15/2026,10/31/2026,450000,430000,Risk
+107,Cloud Security Assessment,Cloud Security,Cloud Infrastructure,Nadia Karim,4/1/2026,8/15/2026,150000,175000,Delay
+108,Vulnerability Management Upgrade,Vulnerability Management,Cyber Security,Daniel Thomas,4/15/2026,9/15/2026,210000,200000,On Track
+109,Privileged Access Management,PAM,IT Security,Aisha Rahman,5/1/2026,11/30/2026,300000,290000,Risk
+110,Security Awareness Programme,Security Awareness,Human Risk Management,Robert James,5/15/2026,8/31/2026,90000,85000,On Track

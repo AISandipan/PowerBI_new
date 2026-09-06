@@ -1,0 +1,23 @@
+Resource_ID,Project_ID,Resource_Name,Role,Allocation_Percent,Cost_USD
+1,101,"Ahmed Khan","Security Architect",80.00,45000.00
+2,101,"Network Engineering Team","Network Engineer",100.00,60000.00
+3,101,"Vendor Team","Vendor Engineer",60.00,35000.00
+4,102,"Sara Ahmed","SOC Manager",100.00,70000.00
+5,102,"SOC Engineering Team","SOC Engineer",100.00,120000.00
+6,102,"SIEM Team","SIEM Engineer",80.00,90000.00
+7,103,"John Mathew","GRC Manager",80.00,45000.00
+8,103,"Audit Team","Compliance Analyst",100.00,55000.00
+9,104,"Fatima Ali","Network Security Manager",80.00,50000.00
+10,104,"DDoS Vendor Team","Security Engineer",100.00,80000.00
+11,105,"Omar Hassan","IAM Manager",80.00,55000.00
+12,105,"IAM Engineering Team","IAM Engineer",100.00,95000.00
+13,106,"Michael George","SIEM Manager",80.00,60000.00
+14,106,"SIEM Engineering Team","SIEM Engineer",100.00,100000.00
+15,107,"Nadia Karim","Cloud Security Lead",100.00,65000.00
+16,107,"Cloud Engineering Team","Cloud Engineer",80.00,70000.00
+17,108,"Daniel Thomas","Security Analyst",100.00,55000.00
+18,108,"Vulnerability Team","Security Analyst",80.00,50000.00
+19,109,"Aisha Rahman","PAM Manager",80.00,55000.00
+20,109,"IAM Team","IAM Engineer",100.00,90000.00
+21,110,"Robert James","Security Awareness Lead",60.00,35000.00
+22,110,"HR Team","Training Specialist",50.00,25000.00

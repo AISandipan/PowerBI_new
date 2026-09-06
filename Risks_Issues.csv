@@ -1,0 +1,16 @@
+Risk_ID,Project_ID,Risk_Category,Risk_Description,Probability,Impact,Risk_Score,Mitigation_Action,Owner,Status
+1,101,Vendor,"Firewall hardware delivery delayed",High,High,9,"Escalate vendor and maintain backup hardware supplier","Procurement Manager",Open
+2,101,Technical,"Firewall configuration complexity",Medium,High,6,"Assign additional security engineers and conduct design review","Security Architect",Open
+3,102,Integration,"Multiple log sources not integrated with SIEM",High,High,9,"Prioritize critical log sources and add integration resources","SOC Manager",Open
+4,102,Resource,"Shortage of experienced SOC engineers",High,High,9,"Use external SOC specialists and cross-train internal team",CISO,Open
+5,103,Compliance,"Delayed evidence from business teams",Medium,Medium,4,"Introduce evidence submission deadlines and escalation process","GRC Manager",Monitoring
+6,104,Vendor,"DDoS vendor deployment delays",High,High,9,"Weekly vendor governance meeting and escalation","Vendor Manager",Open
+7,104,Technical,"Traffic testing environment unavailable",Medium,High,6,"Reserve test environment in advance","Network Manager",Open
+8,105,Resource,"Limited IAM implementation resources",Medium,Medium,4,"Reallocate IAM resources during migration phase","IT Manager",Monitoring
+9,106,Integration,"Legacy systems incompatible with SIEM",High,High,9,"Develop custom connectors for critical legacy systems","SIEM Manager",Open
+10,106,Technical,"High volume of security logs",Medium,High,6,"Optimize SIEM ingestion and storage architecture","SOC Architect",Open
+11,107,Technical,"Cloud configuration vulnerabilities",High,High,9,"Prioritize critical vulnerabilities and enforce remediation SLA","Cloud Security Lead",Open
+12,107,Resource,"Limited cloud security specialists",Medium,High,6,"Bring external cloud security consultant","Cloud Manager",Open
+13,109,Integration,"PAM integration with legacy applications",High,High,9,"Conduct application compatibility assessment","IAM Manager",Open
+14,109,Resource,"Business users slow to approve privileged accounts",Medium,Medium,4,"Introduce automated approval workflow","Business Owner",Monitoring
+15,110,Adoption,"Low employee participation",Low,Medium,2,"Send reminders and management escalation","HR Manager",Closed

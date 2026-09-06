@@ -1,0 +1,41 @@
+Milestone_ID,Project_ID,Milestone_Name,Start_Date,End_Date,Planned_Percent,Actual_Percent,Status
+1001,101,Firewall Design,1/5/2026,1/31/2026,100,100,On Track
+1002,101,Hardware Deployment,2/1/2026,3/15/2026,100,85,Delay
+1003,101,Configuration & Testing,3/16/2026,4/30/2026,100,65,Delay
+1004,101,Production Migration,5/1/2026,5/30/2026,100,40,Risk
+2001,102,SOC Architecture,1/15/2026,2/28/2026,100,100,On Track
+2002,102,Tool Deployment,3/1/2026,4/30/2026,100,90,On Track
+2003,102,SIEM Integration,5/1/2026,6/30/2026,100,70,Risk
+2004,102,SOC Go-Live,7/1/2026,8/31/2026,100,45,Risk
+3001,103,Gap Assessment,2/1/2026,3/15/2026,100,100,On Track
+3002,103,Remediation,3/16/2026,5/15/2026,100,95,On Track
+3003,103,Internal Audit,5/16/2026,6/10/2026,100,90,On Track
+3004,103,Certification Audit,6/11/2026,6/30/2026,100,80,On Track
+4001,104,DDoS Architecture,2/15/2026,3/31/2026,100,100,On Track
+4002,104,Vendor Deployment,4/1/2026,5/31/2026,100,75,Delay
+4003,104,Traffic Testing,6/1/2026,6/30/2026,100,55,Delay
+4004,104,Production Rollout,7/1/2026,7/31/2026,100,30,Delay
+5001,105,IAM Assessment,3/1/2026,4/15/2026,100,100,On Track
+5002,105,Solution Design,4/16/2026,5/31/2026,100,95,On Track
+5003,105,Implementation,6/1/2026,8/15/2026,100,85,On Track
+5004,105,User Migration,8/16/2026,9/30/2026,100,50,Risk
+6001,106,SIEM Platform Setup,3/15/2026,4/30/2026,100,100,On Track
+6002,106,Data Source Integration,5/1/2026,7/15/2026,100,80,Risk
+6003,106,Use Case Development,7/16/2026,9/15/2026,100,55,Risk
+6004,106,Production Cutover,9/16/2026,10/31/2026,100,20,Risk
+7001,107,Cloud Discovery,4/1/2026,4/30/2026,100,100,On Track
+7002,107,Security Assessment,5/1/2026,6/15/2026,100,70,Delay
+7003,107,Remediation,6/16/2026,7/31/2026,100,45,Delay
+7004,107,Final Report,8/1/2026,8/15/2026,100,25,Delay
+8001,108,Asset Discovery,4/15/2026,5/31/2026,100,100,On Track
+8002,108,Scanning Configuration,6/1/2026,6/30/2026,100,95,On Track
+8003,108,Vulnerability Scanning,7/1/2026,8/15/2026,100,90,On Track
+8004,108,Remediation Tracking,8/16/2026,9/15/2026,100,60,On Track
+9001,109,PAM Assessment,5/1/2026,6/15/2026,100,100,On Track
+9002,109,PAM Architecture,6/16/2026,7/31/2026,100,90,On Track
+9003,109,Implementation,8/1/2026,10/15/2026,100,55,Risk
+9004,109,Privileged Account Migration,10/16/2026,11/30/2026,100,20,Risk
+10001,110,Training Content,5/15/2026,6/15/2026,100,100,On Track
+10002,110,Employee Training,6/16/2026,7/31/2026,100,95,On Track
+10003,110,Assessment,8/1/2026,8/20/2026,100,90,On Track
+10004,110,Closure Report,8/21/2026,8/31/2026,100,85,On Track
