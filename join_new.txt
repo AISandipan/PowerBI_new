@@ -1,0 +1,162 @@
+
+
+SELECT Employee.EmployeeID, FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectId,ProjectName,StartDate
+FROM Employee 
+INNER JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId;
+
+
+SELECT Employee.EmployeeID, FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectId,ProjectName,StartDate
+FROM Employee 
+ Left JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId;
+
+SELECT Employee.EmployeeID, FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectId,ProjectName,StartDate
+FROM Employee 
+Left JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId;
+
+
+
+SELECT Employee.EmployeeID, FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectId,ProjectName,StartDate
+FROM Employee 
+INNER JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId where Department="IT" ;
+
+
+SELECT Employee.EmployeeID, Projects.EmployeeId ,Projects.ProjectId,Projects.ProjectName,FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectName,StartDate
+FROM Employee 
+Left JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId;
+
+SELECT Employee.EmployeeID, Projects.EmployeeId ,Projects.ProjectId,Projects.ProjectName,FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectName,StartDate
+FROM Employee 
+INNER JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId;
+
+
+SELECT Employee.EmployeeID, Projects.EmployeeID AS PID,ProjectId,FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectName,StartDate,Country, State, City
+FROM Employee 
+INNER JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId
+INNER JOIN Address 
+ON Employee.EmployeeID = Address.EmployeeId;
+
+
+SELECT Employee.EmployeeID, Projects.EmployeeID AS PID,FullName, Department, Salary,(Salary+Salary*0.45) AS New_Sal,Gender, ProjectName,StartDate,Country, State, City
+FROM Employee 
+Left JOIN Projects 
+ON Employee.EmployeeID = Projects.EmployeeId
+Left JOIN Address 
+ON Employee.EmployeeID = Address.EmployeeId;
+
+
+-- 8. Number of Employees in Each State
+SELECT A.State, COUNT(E.EmployeeId) AS NumEmployees
+FROM Employee E
+INNER JOIN Address A ON E.EmployeeId = A.EmployeeId
+GROUP BY A.State;
+
+-- 9. Projects Without Assigned Employees
+SELECT P.ProjectId, P.ProjectName,E.FullName
+FROM Projects P
+LEFT JOIN Employee E ON P.EmployeeId = E.EmployeeId
+WHERE E.EmployeeId IS NULL;
+
+
+SELECT E.EmployeeId, E.FullName
+FROM Employee E
+LEFT JOIN Projects P ON E.EmployeeId = P.EmployeeId
+WHERE P.ProjectId IS NULL;
+
+-- 9. Projects Without Assigned Employees
+SELECT P.ProjectId, P.ProjectName,E.FullName
+FROM Projects P
+Right JOIN Employee E ON P.EmployeeId = E.EmployeeId
+WHERE E.EmployeeId IS NULL;
+
+
+
+-- 10. Highest Paid Employee in Each Department
+SELECT E.FullName, E.Department, E.Salary
+FROM Employee E
+INNER JOIN (
+    SELECT Department, MAX(Salary) AS MaxSalary
+    FROM Employee
+    GROUP BY Department
+) AS MaxSalaries 
+ON E.Department = MaxSalaries.Department AND E.Salary = MaxSalaries.MaxSalary;
+
+-- 11. Total Number of Projects Per Department
+SELECT E.Department, COUNT(P.ProjectId) AS TotalProjects
+FROM Employee E
+INNER JOIN Projects P ON E.EmployeeId = P.EmployeeId
+GROUP BY E.Department;
+
+-- 12. Average Age of Employees by Gender
+SELECT Gender, AVG(Age) AS AvgAge
+FROM Employee
+GROUP BY Gender;
+
+-- 13. ROLLUP total salaries
+SELECT Department, Gender,
+       SUM(Salary) AS TotalSalary
+FROM Employee
+GROUP BY Department, Gender WITH ROLLUP;
+
+
+Create database mydhddbnew2new;
+USE mydhddbnew2new;
+
+-- 15. Count assigned/unassigned projects by department
+SELECT Department,
+       SUM(CASE WHEN P.EmployeeId IS NOT NULL THEN 1 ELSE 0 END) AS AssignedProjects,
+       SUM(CASE WHEN P.EmployeeId IS NULL THEN 1 ELSE 0 END) AS UnassignedProjects
+FROM Employee E
+LEFT JOIN Projects P ON E.EmployeeId = P.EmployeeId
+GROUP BY Department;
+
+-- 16. Projects ending in next 7 days
+SELECT ProjectName, EndDate, DATEDIFF(EndDate, NOW()) AS DaysLeft
+FROM Projects
+WHERE DATEDIFF(EndDate, NOW()) BETWEEN 0 AND 40;
+
+-- 17. Overdue projects
+SELECT ProjectName, EndDate, DATEDIFF(NOW(), EndDate) AS DaysOverdue
+FROM Projects
+WHERE EndDate < NOW();
+
+-- 18. Duration of each project in Days
+SELECT ProjectName,
+       DATEDIFF(EndDate, StartDate) AS DurationDays
+FROM Projects;
+
+-- 19. Last project per employee
+SELECT EmployeeId, ProjectName, StartDate
+FROM (
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY EmployeeId ORDER BY StartDate DESC) AS rn
+  FROM Projects
+  WHERE EmployeeId IS NOT NULL
+) t
+WHERE rn = 1;
+
+-- 20. Average project duration by employee
+SELECT E.FullName,
+       AVG(DATEDIFF(P.EndDate, P.StartDate)) AS AvgProjectDays
+FROM Employee E
+JOIN Projects P ON E.EmployeeId = P.EmployeeId
+GROUP BY E.FullName;
+
+-- 21. Employees with no projects
+SELECT E.EmployeeId, E.FullName
+FROM Employee E
+LEFT JOIN Projects P ON E.EmployeeId = P.EmployeeId
+WHERE P.ProjectId IS NULL;
+
+-- 22. Employees sharing same project name
+SELECT P.ProjectName, GROUP_CONCAT(E.FullName) AS Employees
+FROM Projects P
+JOIN Employee E ON P.EmployeeId = E.EmployeeId
+GROUP BY P.ProjectName
+HAVING COUNT(*) > 1;
+
