@@ -1,0 +1,470 @@
+SELECT * from  Employee;
+SELECT * from  Employee where  Department = 'HR';
+SELECT * from  Employee where  Department <> 'HR';
+SELECT Id,FName,Email,City from  Employee where  Department = 'HR';
+SELECT Id,FName,Email,City from  Employee where  Department <> 'HR';
+SELECT COUNT(*) AS TotalEmployee FROM Employee;
+SELECT round(AVG(Salary),2) AS AVG_Sal FROM Employee;
+SELECT round(AVG(Salary),2) AS AVG_Sal FROM Employee where  Department = 'HR';
+
+SELECT round(SUM(Salary),2) AS total_HR_Sal FROM Employee where  Department = 'HR';
+SELECT MAX(Salary) AS MAX_Sal FROM Employee;
+SELECT MIN(Salary) AS MIN_Sal FROM Employee;
+SELECT round(AVG(Salary),2) AS AVG_Sal FROM Employee;
+SELECT round(AVG(Salary),2) AS AVG_Sal FROM Employee;
+SELECT SUM(Salary) AS Total_Sal FROM Employee;
+SELECT * from  Employee  WHERE Department = 'HR';
+SELECT * from  Employee  WHERE City = 'Mumbai' AND Department = 'HR';
+SELECT * from  Employee  WHERE City <> 'Mumbai' AND Department = 'HR';
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY FName ASC;
+
+USE mysqljoindb;
+#------------------------------------------------------------------ANS------------------------------------------------------
+SELECT id,FName ,(Salary+(Salary*0.12)) AS Hike FROM employee where City = 'Mumbai' AND Department = 'HR' ORDER BY FName DESC;
+SELECT id,FName ,(Salary+(Salary*0.12)) AS Hike FROM employee where City = 'Mumbai' AND Department = 'HR' ORDER BY FName ASC;
+
+SELECT Department, COUNT(*) AS TotalEmployee FROM Employee GROUP BY Department;
+
+
+
+
+
+
+
+
+
+
+
+
+#SELECT * FROM Employee GROUP BY Department;
+SELECT Department, SUM(Salary) as TotalOverhead_Cost
+FROM Employee
+GROUP BY Department;
+SELECT Department, SUM(Salary) as TotalSalary FROM Employee WHERE City = 'Mumbai' AND Age>25 GROUP BY Department ;
+
+SELECT * 
+FROM employee e1
+WHERE EXISTS (
+    SELECT 1 
+    FROM employee e2 
+    WHERE e1.Department = e2.Department 
+      AND e1.Salary = e2.Salary 
+      AND e1.Id <> e2.Id
+)
+ORDER BY Department, Salary;
+/*
+EmployeeDuplicates = 
+FILTER (
+    'Employee',
+    VAR CurrentDepartment = 'Employee'[Department]
+    VAR CurrentSalary = 'Employee'[Salary]
+    VAR CurrentId = 'Employee'[Id]
+    RETURN
+        CALCULATE (
+            COUNTROWS ( 'Employee' ),
+            'Employee'[Department] = CurrentDepartment,
+            'Employee'[Salary] = CurrentSalary,
+            'Employee'[Id] <> CurrentId
+        ) > 0
+)
+
+*/
+
+SELECT * FROM employee where  Salary = (SELECT MAX(Salary) FROM employee where Department='IT') and Department='IT';
+
+SELECT Department, COUNT(*) AS TotalEmployee FROM Employee GROUP BY Department;
+
+#SELECT * FROM Employee GROUP BY Department;
+SELECT Department, SUM(Salary) as TotalOverhead_Cost
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, SUM(Salary) as TotalSalary
+FROM Employee
+GROUP BY Department ;
+
+SELECT Department, round(AVG(Salary),2) as Average_Salary_byDept
+FROM Employee
+GROUP BY Department ;
+SELECT MAX(Salary) FROM employee where Department='IT';
+
+select * from your_tbl where sal='cond' and sal='saqw';
+
+
+
+
+
+
+SELECT * FROM employee where  Salary = (SELECT MAX(Salary) FROM employee where Department='IT') and Department='IT';
+SELECT * FROM employee where  Salary = (SELECT MAX(Salary) FROM employee where Department='HR') and Department='HR';
+SELECT * FROM employee where  Salary = (SELECT MIN(Salary) FROM employee where Department='IT') and Department='IT';
+SELECT * FROM employee where  Salary = (SELECT MIN(Salary) FROM employee where Department='HR') and Department='HR';
+
+IT_Max_Salary_Employees = 
+VAR MaxITSalary = 
+    CALCULATE(
+        MAX(employee[Salary]), 
+        employee[Department] = "IT"
+    )
+RETURN
+    FILTER(
+        employee,
+        employee[Department] = "IT" && employee[Salary] = MaxITSalary
+    )
+
+SELECT Department, MAX(Salary) as Highest_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, MIN(Salary) as MINSalary
+FROM Employee
+GROUP BY Department;
+
+
+
+
+
+
+
+
+SELECT Department, SUM(Salary) as TotalSalary FROM Employee WHERE City = 'Mumbai' AND Age>25 GROUP BY Department ;
+
+SELECT Department, MAX(Salary) as Highest_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, MIN(Salary) as MINSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, round(AVG(Salary),2) as AVG_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, Count(*) as Count_Employee,AVG(Salary) as AVG_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+
+SELECT * from  Employee;
+SELECT Department, COUNT(*) AS TotalEmployee 
+FROM Employee 
+GROUP BY Department;
+
+#---------------------------------------------------Advance ---------------------------------------------------------
+
+-- 1. Employees with salaries above the average salary of their department
+SELECT * FROM employee e WHERE Salary > (SELECT AVG(Salary)  FROM employee     WHERE Department = e.Department);
+SELECT * FROM employee e WHERE Salary > (SELECT MIN(Salary)  FROM employee     WHERE Department = e.Department);
+SELECT * FROM employee e WHERE Salary < (SELECT MAX(Salary)  FROM employee     WHERE Department = e.Department);
+
+-- 2. Department-wise highest-paid employee(s)
+SELECT *
+FROM employee e
+WHERE Salary = (
+    SELECT MAX(Salary) 
+    FROM employee 
+    WHERE Department = e.Department
+);
+
+
+TopEarnersTable = 
+FILTER(
+    'employee',
+    'employee'[Salary] = 
+        CALCULATE(
+            MAX('employee'[Salary]),
+            ALLEXCEPT('employee', 'employee'[Department])
+        )
+)
+
+
+-- Department-wise min-paid employee(s)
+SELECT *
+FROM employee e
+WHERE Salary = (
+    SELECT MIN(Salary) 
+    FROM employee 
+    WHERE Department = e.Department
+);
+
+
+-- 3. Second highest salary in the IT department
+SELECT DISTINCT Salary
+FROM employee
+WHERE Department = 'IT'
+ORDER BY Salary DESC
+LIMIT 1 OFFSET 1;
+
+
+SELECT MAX(Salary) AS Second_Highest 
+FROM employee 
+WHERE Salary < (SELECT MAX(Salary) FROM employee where Department = 'IT') and Department='IT';
+
+SELECT *
+FROM employee
+WHERE Salary = (
+SELECT MAX(Salary) AS Second_Highest 
+FROM employee 
+WHERE Salary < (SELECT MAX(Salary) FROM employee where Department = 'IT') and Department='IT') and Department='IT';
+
+-- 4. Employees with duplicate salaries in the same department
+SELECT * 
+FROM employee e1
+WHERE EXISTS (
+    SELECT 1 
+    FROM employee e2 
+    WHERE e1.Department = e2.Department 
+      AND e1.Salary = e2.Salary 
+      AND e1.Id <> e2.Id
+)
+ORDER BY Department, Salary;
+
+
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------
+/*
+EVALUATE
+FILTER (
+    'employee',
+    'employee'[City] = "London" && 'employee'[Age] > 25
+)
+ORDER BY
+    'employee'[FName] ASC
+*/
+
+SELECT *  FROM employee  WHERE City = 'London'  ORDER BY FName ASC ; 
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY FName DESC ; 
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY Salary DESC , Department ASC; 
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY Salary ASC , Department ASC; 
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY Department ASC,Salary DESC; 
+SELECT *  FROM employee  WHERE City = 'London'  ORDER BY FName DESC;  
+SELECT *  FROM employee  WHERE City = 'London'  ORDER BY Department ASC;  
+SELECT *  FROM employee   ORDER BY City,Department;
+SELECT *  FROM employee   ORDER BY Department DESC,City;  
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY Salary DESC , Department ASC; 
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY Salary ASC , Department ASC; 
+SELECT *  FROM employee  WHERE City = 'London' AND Age>25  ORDER BY Department ASC,Salary DESC; 
+SELECT *  FROM employee  WHERE City = 'London'  ORDER BY FName DESC;  
+SELECT *  FROM employee  WHERE City = 'London'  ORDER BY Department ASC;  
+SELECT *  FROM employee   ORDER BY City,Department;
+SELECT *  FROM employee   ORDER BY Department DESC,City; 
+SELECT *,(Salary+(Salary*0.20)) AS New_Salary  FROM employee  WHERE City = 'Mumbai' AND Department = 'HR';
+SELECT *,(Salary+(Salary*0.12)) AS New_Salary  FROM employee  WHERE City <> 'Mumbai' AND Department = 'HR';
+SELECT *,(Salary+(Salary*0.20)) AS New_Salary  FROM employee  WHERE City = 'Mumbai' AND Department <> 'HR';
+SELECT id,FName,(Salary+(Salary*0.24)) AS Hike FROM employee where Department='Finance';
+
+
+
+
+
+
+
+
+SELECT Department, COUNT(*) AS TotalEmployee FROM Employee GROUP BY Department;
+#SELECT * FROM Employee GROUP BY Department;
+SELECT * FROM employee  where  Department='IT';
+SELECT *,(Salary+(Salary*0.20)) AS New_Salary  FROM employee  WHERE City = 'Mumbai' AND Department = 'HR';
+SELECT *,(Salary+(Salary*0.12)) AS New_Salary  FROM employee  WHERE City <> 'Mumbai' AND Department = 'HR';
+SELECT *,(Salary+(Salary*0.20)) AS New_Salary  FROM employee  WHERE City = 'Mumbai' AND Department <> 'HR';
+SELECT Department,MAX(Salary) FROM employee where Department='IT' group by Department;
+SELECT * FROM employee  where  Salary =  (SELECT MAX(Salary) FROM employee where Department='IT')  and Department='IT';
+ 
+ SELECT * FROM employee  where  Salary =  (SELECT MAX(Salary) FROM employee) ;
+ 
+SELECT Department,MAX(Salary) FROM employee where Department='IT' group by Department;
+
+SELECT MAX(Salary) FROM employee where Department='IT';
+
+SELECT id,FName ,(Salary+(Salary*0.12)) AS Modified_Salary FROM employee where City = 'Mumbai' AND Department = 'HR' ORDER BY FName DESC;
+
+SELECT Department, SUM(Salary) as TotalOverhead_Cost
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, AVG(Salary) as Avg_Salary
+FROM Employee
+GROUP BY Department ;
+
+SELECT Department, SUM(Salary) as TotalSalary FROM Employee WHERE City = 'Mumbai' AND Age>25 GROUP BY Department ;
+SELECT Department, SUM(Salary) as TotalSalary FROM Employee WHERE City <> 'Mumbai' GROUP BY Department ;
+SELECT Department, SUM(Salary) as TotalSalary FROM Employee WHERE City <> 'Mumbai' AND Age>25 GROUP BY Department ;
+
+SELECT Department, MAX(Salary) as MAX_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, MIN(Salary) as MIN_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+
+SELECT Department, AVG(Salary) as AVG_TotalSalary FROM Employee GROUP BY Department;
+SELECT * 
+FROM employee e1
+WHERE EXISTS (
+    SELECT 1 
+    FROM employee e2 
+    WHERE e1.Department = e2.Department 
+      AND e1.Salary = e2.Salary 
+      AND e1.Id <> e2.Id
+)
+ORDER BY Department, Salary;
+
+
+SELECT * FROM employee where  Salary = (SELECT MAX(Salary) FROM employee where Department='IT') and Department='IT';
+SELECT Department, COUNT(*) AS TotalEmployee FROM Employee GROUP BY Department;
+
+#SELECT * FROM Employee GROUP BY Department;
+SELECT Department, SUM(Salary) as TotalOverhead_Cost
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, SUM(Salary) as TotalSalary
+FROM Employee
+GROUP BY Department ;
+
+SELECT Department, SUM(Salary) as TotalSalary FROM Employee WHERE City = 'Mumbai' AND Age>25 GROUP BY Department ;
+
+SELECT Department, MAX(Salary) as MAX_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, MIN(Salary) as MINSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, round(AVG(Salary),2) as AVG_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+SELECT Department, Count(*) as Count_Employee,AVG(Salary) as AVG_TotalSalary
+FROM Employee
+GROUP BY Department;
+
+
+SELECT * from  Employee;
+SELECT Department, COUNT(*) AS TotalEmployee 
+FROM Employee 
+GROUP BY Department;
+
+#---------------------------------------------------Advance  KPI for Power BI ---------------------------------------------------------
+
+-- 1. Employees with salaries above the average salary of their department
+SELECT *
+FROM employee e
+WHERE Salary > (
+    SELECT AVG(Salary) 
+    FROM employee 
+    WHERE Department = e.Department
+);
+
+-- 2. Department-wise highest-paid employee(s)
+SELECT *
+FROM employee e
+WHERE Salary = (
+    SELECT MAX(Salary) 
+    FROM employee 
+    WHERE Department = e.Department
+);
+
+-- 3. Second highest salary in the IT department
+SELECT DISTINCT Salary
+FROM employee
+WHERE Department = 'IT'
+ORDER BY Salary DESC
+LIMIT 1 OFFSET 1;
+SELECT MAX(Salary) AS Second_Highest 
+FROM employee 
+WHERE Salary < (SELECT MAX(Salary) FROM employee where Department = 'IT') and Department='IT';
+
+SELECT *
+FROM employee
+WHERE Salary = (
+SELECT MAX(Salary) AS Second_Highest 
+FROM employee 
+WHERE Salary < (SELECT MAX(Salary) FROM employee where Department = 'IT') and Department='IT') and Department='IT';
+
+-- 4. Employees with duplicate salaries in the same department
+SELECT * 
+FROM employee e1
+WHERE EXISTS (
+    SELECT 1 
+    FROM employee e2 
+    WHERE e1.Department = e2.Department 
+      AND e1.Salary = e2.Salary 
+      AND e1.Id <> e2.Id
+)
+ORDER BY Department, Salary;
+
+-- 5. Count of male and female employees in each department
+SELECT Department, Gender, COUNT(*) AS Count
+FROM employee
+GROUP BY Department, Gender;
+
+-- 6. Rank employees by salary within each department
+SELECT *, 
+       RANK() OVER (PARTITION BY Department ORDER BY Salary DESC) AS SalaryRank
+FROM employee;
+
+#---------------------------------------------------------------------------------------------------------
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION',''));
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'traditional',''));
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+
+-- 7. Cumulative salary expense by department
+SELECT Department, 
+       SUM(Salary) AS TotalSalary,
+       SUM(Salary) OVER (ORDER BY Department) AS Running_Total
+FROM employee
+GROUP BY Department;
+
+-- 8. Average salary by City and Department
+SELECT City, Department, ROUND(AVG(Salary), 2) AS AvgSalary
+FROM employee
+GROUP BY City, Department
+ORDER BY AvgSalary DESC;
+
+-- 9. Employees whose names contain 'Mohanty' or start with 'A'
+SELECT * 
+FROM employee 
+WHERE FName LIKE 'A%' OR FName LIKE '%Mohanty%';
+
+
+SELECT Department, MAX(Salary) as MAX_TotalSalary
+FROM Employee
+GROUP BY Department;
+-- 10. Employees with salary above overall average and below department max
+SELECT * 
+FROM employee e
+WHERE Salary > (SELECT AVG(Salary) FROM employee)
+  AND Salary < (SELECT MAX(Salary) FROM employee WHERE Department = e.Department);
+
+
+-- 11. Percentage contribution of each employee to department salary
+SELECT Id, FName, Department, 
+       ROUND((Salary / SUM(Salary) OVER (PARTITION BY Department)) * 100, 2) AS Percent_Contribution
+FROM employee;
+
+-- 12. Employees with the same last name
+SELECT * 
+FROM employee e1
+WHERE EXISTS (
+    SELECT 1 
+    FROM employee e2 
+    WHERE e1.LName = e2.LName 
+      AND e1.Id <> e2.Id
+);
+
+-- 13. Employees whose salary is in the top 10% overall
+SELECT * 
+FROM employee 
+WHERE Salary >= (
+    SELECT MAX(Salary)
+    FROM (
+        SELECT Salary
+        FROM employee
+        ORDER BY Salary DESC
+        LIMIT CEIL(SELECT COUNT(*) FROM employee * 0.10)) AS Top10)
+);
