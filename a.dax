@@ -1,0 +1,1655 @@
+#date(2025,
+if [Month]="January" then 1
+else if [Month]="February" then 2
+else if [Month]="March" then 3
+else if [Month]="April" then 4
+else if [Month]="May" then 5
+else if [Month]="June" then 6
+else if [Month]="July" then 7
+else if [Month]="August" then 8
+else if [Month]="September" then 9
+else if [Month]="October" then 10
+else if [Month]="November" then 11
+else 12,
+1)
+
+
+
+
+
+
+
+Calendarnew = CALENDAR(MIN(Sales[Date]),MAX(Sales[Date]))
+
+Total_sales = Orders[Quantity]*Orders[Sales]
+
+total_profit = Orders[Profit]*Orders[Quantity]
+
+total_discount = Orders[Discount]*Orders[Quantity]
+
+total cost = Orders[Total_sales]-Orders[total_profit]
+
+Price_after_dis_Column = Orders[Total_sales]-(Orders[Total_sales]*0.10)
+
+
+
+
+
+
+dis_Column_Central = IF(Orders[Region]="Central",Orders[total_sales]-(Orders[total_sales]*0.16),Orders[total_sales])
+
+
+dis_Column_Central1 = IF(Orders[Region]="East",Orders[total_sales]-(Orders[total_sales]*0.12),Orders[total_sales])
+
+dis_Column_not_Central = IF(Orders[Region]<>"Central",Orders[total_sales]-(Orders[total_sales]*0.05),Orders[total_sales])
+Filtercondition_Phoenix = IF(Orders[City]="Phoenix","ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Austin = IF(Orders[City]="Austin","ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Phoenix_not = IF(Orders[City]<>"Phoenix","ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Phoenix_Not_Dis% = IF(Orders[City]<>"Phoenix",Orders[total_sales]-(Orders[total_sales]*0.34),Orders[total_sales])
+
+Discount Price (Tech) = 
+IF(
+    Orders[Category]="Technology", (Orders[Total Sales]-Orders[Total Sales]*0.20),
+    Orders[Total Sales]-Orders[Total Sales]*0.05)
+    
+Discount Price Non(Tech) = 
+IF(
+    Orders[Category]<>"Technology", (Orders[Total Sales]-Orders[Total Sales]*0.23),
+    Orders[Total Sales]-Orders[Total Sales]*0.04)
+
+
+
+--price_after_dis=[Total Sales] - [Total Sales] * 0.30
+--disprice=sp-(sp*d%)
+myDiscount% = 
+IF(
+    'Orders'[Category] = "Furniture" && 'Orders'[Sub-Category] = "Chairs",
+    [Total Sales] - [Total Sales] * 0.30,
+    [Total Sales]
+)
+
+myDiscount%_Cat_Regional = 
+IF(
+    'Orders'[Category] = "Furniture" && 'Orders'[Region] = "East",
+    [Total Sales] - [Total Sales] * 0.30,
+    [Total Sales]
+)
+
+
+Discounted_Price_%_or = 
+    IF(
+        Orders[Region] = "East" || Orders[Region] = "Central", 
+        Orders[Total_Sales_New] * 0.15, 
+        Orders[Total_Sales_New]
+    )
+
+
+Filtercondition_Phoenix_new6 = 
+VAR Price_after_dis_Column = Orders[Total_Sales_Col] - (Orders[Total_Sales_Col] * 0.10)
+RETURN
+IF(
+    Orders[City] <> "Phoenix",
+    Price_after_dis_Column,
+    0
+)
+
+
+
+
+
+
+
+//-----------------------------------Advance DAX------------------------------------------------
+-- 1. Discount based on Region
+Regional_Discount_Price =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        Orders[Region],
+        "East", 0.12,
+        "Central", 0.16,
+        "West", 0.08,
+        "South", 0.10,
+        0
+    )
+RETURN
+    SalesAmount - (SalesAmount * DiscountRate)
+
+
+-- 2. Discount based on Category
+Category_Discount_Price =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        Orders[Category],
+        "Technology", 0.20,
+        "Furniture", 0.15,
+        "Office Supplies", 0.10,
+        0.05
+    )
+RETURN
+    SalesAmount - (SalesAmount * DiscountRate)
+
+
+-- 3. High Quantity Discount
+Quantity_Discount_Price =
+VAR SalesAmount = Orders[Total_sales]
+VAR Qty = Orders[Quantity]
+VAR DiscountRate =
+    IF(
+        Qty >= 10,
+        0.25,
+        IF(
+            Qty >= 5,
+            0.15,
+            0.05
+        )
+    )
+RETURN
+    SalesAmount - (SalesAmount * DiscountRate)
+
+
+-- 4. Profit-Based Customer/Order Status
+Profit_Status =
+VAR ProfitAmount = Orders[total_profit]
+RETURN
+    IF(
+        ProfitAmount > 500,
+        "HIGH PROFIT",
+        IF(
+            ProfitAmount > 0,
+            "PROFITABLE",
+            "LOSS"
+        )
+    )
+
+
+-- 5. Regional + Category Discount
+Regional_Category_Discount =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+        Orders[Region] = "East" &&
+        Orders[Category] = "Technology", 0.30,
+
+        Orders[Region] = "Central" &&
+        Orders[Category] = "Furniture", 0.25,
+
+        Orders[Region] = "West" &&
+        Orders[Category] = "Office Supplies", 0.20,
+
+        0.05
+    )
+RETURN
+    SalesAmount - (SalesAmount * DiscountRate)
+
+
+-- 6. Phoenix Special Pricing
+Phoenix_Special_Price =
+VAR SalesAmount = Orders[Total_sales]
+RETURN
+    IF(
+        Orders[City] = "Phoenix",
+        SalesAmount - (SalesAmount * 0.35),
+        SalesAmount - (SalesAmount * 0.10)
+    )
+
+
+-- 7. Technology + High Quantity Discount
+Tech_HighQty_Discount =
+VAR SalesAmount = Orders[Total_sales]
+RETURN
+    IF(
+        Orders[Category] = "Technology" &&
+        Orders[Quantity] >= 5,
+        SalesAmount - (SalesAmount * 0.30),
+        IF(
+            Orders[Category] = "Technology",
+            SalesAmount - (SalesAmount * 0.20),
+            SalesAmount
+        )
+    )
+
+
+-- 8. Furniture Chair Special Discount
+Furniture_Chair_Discount =
+VAR SalesAmount = Orders[Total_sales]
+VAR IsChair =
+    Orders[Category] = "Furniture" &&
+    Orders[Sub-Category] = "Chairs"
+RETURN
+    IF(
+        IsChair,
+        SalesAmount - (SalesAmount * 0.30),
+        SalesAmount - (SalesAmount * 0.05)
+    )
+
+
+-- 9. Customer/Order Priority
+Order_Priority =
+VAR SalesAmount = Orders[Total_sales]
+VAR ProfitAmount = Orders[total_profit]
+RETURN
+    SWITCH(
+        TRUE(),
+        SalesAmount >= 1000 && ProfitAmount > 300, "HIGH PRIORITY",
+        SalesAmount >= 500 && ProfitAmount > 100, "MEDIUM PRIORITY",
+        SalesAmount < 500 && ProfitAmount > 0, "LOW PRIORITY",
+        "CHECK ORDER"
+    )
+
+
+-- 10. Discount Based on Region + City
+City_Region_Discount =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+        Orders[City] = "Phoenix", 0.34,
+        Orders[City] = "Austin" &&
+        Orders[Region] = "Central", 0.25,
+        Orders[Region] = "East", 0.15,
+        Orders[Region] = "Central", 0.20,
+        0.05
+    )
+RETURN
+    SalesAmount - (SalesAmount * DiscountRate)
+
+
+-- 11. Advanced Profit After Discount
+Profit_After_Discount =
+VAR SalesAmount = Orders[Total_sales]
+VAR ProfitAmount = Orders[total_profit]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+        Orders[Category] = "Technology" &&
+        Orders[Profit] > 0.20, 0.20,
+
+        Orders[Category] = "Furniture" &&
+        Orders[Profit] > 0.15, 0.15,
+
+        Orders[Quantity] >= 10, 0.10,
+
+        0.05
+    )
+VAR DiscountedSales =
+    SalesAmount - (SalesAmount * DiscountRate)
+RETURN
+    DiscountedSales - (SalesAmount - ProfitAmount)
+
+
+-- 12. Advanced Order Classification
+Advanced_Order_Classification =
+VAR SalesAmount = Orders[Total_sales]
+VAR Qty = Orders[Quantity]
+VAR ProfitAmount = Orders[total_profit]
+VAR RegionName = Orders[Region]
+RETURN
+    SWITCH(
+        TRUE(),
+
+        SalesAmount >= 2000 &&
+        ProfitAmount >= 500 &&
+        Qty >= 10,
+        "VIP HIGH VALUE",
+
+        SalesAmount >= 1000 &&
+        ProfitAmount >= 250 &&
+        (RegionName = "East" || RegionName = "Central"),
+        "HIGH VALUE",
+
+        SalesAmount >= 500 &&
+        ProfitAmount > 0,
+        "MEDIUM VALUE",
+
+        ProfitAmount < 0,
+        "LOSS ORDER",
+
+        "NORMAL ORDER"
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Filtercondition_Phoenix = IF(Orders[City]<>"Phoenix","ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Austin = IF(Orders[City]<>"Austin","ACTIVE","NOT_ACTIVE")
+Filtercondition_Phoenix = IF(Orders[City]="Austin",Orders[total_sales]-(Orders[total_sales]*0.20),0)
+
+
+Total_Profit_Measure1 = SUM('Orders'[total_profit])
+
+Total_Profit_Measure1 = SUM(Orders[Profit])
+
+Profit Trend Measure = SUM(Orders[Profit])
+
+
+
+
+
+
+
+
+
+
+
+
+//columns
+Profit Trend Icon = 
+SWITCH(
+    TRUE(),
+    [Profit Trend Measure] > 0, "✔️",
+    [Profit Trend Measure] < 0, "❌",
+    "➖"
+)
+Profit_Trend_Icon = 
+SWITCH(
+    TRUE(),
+    [Total_Profit_Measure1] > 0, "🟢 ↑",
+    [Total_Profit_Measure1] < 0, "🔴 ↓",
+    "➖"
+)
+
+Filtercondition_Phoenix = IF(Orders[City]="Phoenix","Phoenix_ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Phoenix_dis30% = IF(Orders[City]="Phoenix",Orders[Total Sales] - Orders[Total Sales] * 0.30,0)
+Filtercondition_Austin_dis20% = IF(Orders[City]<>"Austin",Orders[Total Sales] - Orders[Total Sales] * 0.20,0)
+
+Filtercondition_Austin = IF(Orders[City]="Austin","ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Phoenix = IF(Orders[City]="Austin",0,Orders[Total Sales] - Orders[Total Sales] * 0.18)
+
+
+
+
+
+
+
+
+
+
+
+
+Profit_Trend_Icon = 
+SWITCH(
+    TRUE(),
+    [Total_Profit_Measure1] > 0, "🟢 ↑",
+    [Total_Profit_Measure1] < 0, "🔴 ↓",
+    "➖"
+)
+
+
+Profit Trend Icon = 
+SWITCH(
+    TRUE(),
+    [Profit Trend Measure] > 0, "✔️",
+    [Profit Trend Measure] < 0, "❌",
+    "➖"
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+Churn Rate = DIVIDE( CALCULATE(DISTINCTCOUNT('ecommerce'[Customer_ID]), 'ecommerce'[Churn] = "Yes"),DISTINCTCOUNT('ecommerce'[Customer_ID])) * 100
+
+Profit Trend Icon1 = 
+SWITCH(
+    TRUE(),
+    [Profit Trend Measure] > 0,"🟢 ↑",
+    [Profit Trend Measure] < 0,"🔴 ↓",
+    "➖"
+)
+NewTotal_Profit_Measure2 = SUM(Orders[Profit])
+
+
+NewProfit_Trend_Icon4 = 
+SWITCH(
+    TRUE(),
+    [NewTotal_Profit_Measure2] > 0, "🟢 ↑",
+    [NewTotal_Profit_Measure2] < 0, "🔴 ↓",
+    "➖"
+)
+
+
+
+myCategory_Rank_Desc = 
+RANKX(
+    ALL(ecommerce[Product_Category]),
+    [Total Revenue],
+    ,
+    DESC
+)
+
+--------------------------------------------------------------------------
+
+RANKX(
+
+This is a DAX function used to rank items (like categories) based on a value.
+
+Think: “Give me the position of each category compared to others.”
+
+ALL(ecommerce[Product_Category])
+
+This is very important.
+
+It means:
+
+“Ignore any filters on Product_Category and consider ALL categories.”
+
+Without this:
+
+Ranking would only happen within the filtered view (wrong in most cases)
+
+With this:
+
+Every category is ranked against the full dataset
+[Total Revenue]
+
+This is the expression used for ranking.
+
+It means:
+
+“Rank categories based on their total revenue.”
+
+So:
+
+Highest revenue → Rank 1
+Next highest → Rank 2
+and so on...
+, (blank argument)
+
+This is the value argument (optional).
+
+Since it’s blank:
+
+DAX uses [Total Revenue] for the current row automatically
+DESC
+
+This means Descending order
+
+So:
+
+Highest value = Rank 1
+Lowest value = Last rank
+
+If you used ASC:
+
+Lowest value = Rank 1
+-----------------------------------------------------------------------------
+
+
+
+Top_3_Revenue_Desc = 
+IF(
+    [myCategory_Rank_Desc] <= 3,
+    [Total Revenue],
+    BLANK()
+)
+
+
+
+Category_Rank_(Ascending)=
+RANKX(
+    ALL(ecommerce[Product_Category]),
+    [Total Revenue],
+    ,
+    ASC
+)
+
+Bottom_3_Revenue =
+IF(
+    [Category_Rank_(Ascending)] <= 3,
+    [Total Revenue],
+    BLANK()
+)
+
+
+column_name = IF(logicaltest,"True","false")
+
+column_name=IF('Table'[selectedcolumn]="value",True,False)
+
+Filtercondition_Phoenix = IF(Orders[City]="Phoenix","Phoenix_ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Phoenix_dis% = IF(Orders[City]="Phoenix",Orders[Total Sales] - Orders[Total Sales] * 0.30,0)
+Filtercondition_Phoenix_dis% = IF(Orders[City]<>"Phoenix",Orders[Total Sales] - Orders[Total Sales] * 0.20,0)
+
+Filtercondition_Austin = IF(Orders[City]="Austin","ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Phoenix = IF(Orders[City]="Austin",0,Orders[Total Sales] - Orders[Total Sales] * 0.18)
+
+Filtercondition_Phoenix = IF(Orders[City]<>"Austin",0,Orders[Total Sales] - Orders[Total Sales] * 0.28)
+discounted_price=sp-(sp*d%)=sp(1-d%)
+
+
+
+
+
+
+
+DAX_IN_ACTION
+
+total_sales = Orders[Quantity]*Orders[Sales]
+
+total_profit = Orders[Profit]*Orders[Quantity]
+
+total_discount = Orders[Discount]*Orders[Quantity]
+
+total cost = Orders[total_sales]-Orders[total_profit]
+
+Price_after_dis_Column = Orders[total_sales]-(Orders[total_sales]*0.10)
+
+
+
+Filtercondition_Phoenix = IF(Orders[City]="Phoenix","ACTIVE","NOT_ACTIVE")
+dis_Column = IF(Orders[Region]="Central",Orders[total_sales]-(Orders[total_sales]*0.16),0)
+Filtercondition_Austin = IF(Orders[City]="Austin","ACTIVE","NOT_ACTIVE")
+var Price_after_dis_Column = Orders[total_sales]-(Orders[total_sales]*0.10)
+Filtercondition_Phoenix_Not = IF(Orders[City]<>"Phoenix",Orders[total_sales]-(Orders[total_sales]*0.34),Orders[total_sales])
+Filtercondition_Phoenix = IF(Orders[City]<>"Phoenix",Price_after_dis_Column,0)
+Filtercondition_Phoenix = IF(Orders[City]<>"Phoenix","ACTIVE","NOT_ACTIVE")
+
+Filtercondition_Austin = IF(Orders[City]<>"Austin","ACTIVE","NOT_ACTIVE")
+Filtercondition_Phoenix = IF(Orders[City]="Austin",Orders[total_sales]-(Orders[total_sales]*0.20),0)
+
+
+
+Discount Price (Tech) = 
+IF(
+    Orders[Category]="Technology", Orders[Total Sales]-Orders[Total Sales]*0.20,
+    Orders[Total Sales]-Orders[Total Sales]*0.05)
+
+
+
+--price_after_dis=[Total Sales] - [Total Sales] * 0.30
+myDiscount% = 
+IF(
+    'Orders'[Category] = "Furniture" && 'Orders'[Sub-Category] = "Chairs",
+    [Total Sales] - [Total Sales] * 0.30,
+    [Total Sales]
+)
+
+
+Discounted_Price_%_or = 
+    IF(
+        Orders[Region] = "East" || Orders[Region] = "Central", 
+        Orders[Total_Sales_New] * 0.15, 
+        Orders[Total_Sales_New]
+    )
+
+
+
+
+
+
+Orders_Color = 
+
+SWITCH(TRUE(),
+SUM(Orders[Sales])<= 400000,"#37ff00ff",
+SUM(Orders[Sales])<= 690000,"#f620e8ff",
+"#FFA500"
+)
+
+Orders_Color1 = 
+
+SWITCH(TRUE(),
+SUM(Orders[Sales])<= 400000,"#ff0000",
+SUM(Orders[Sales])<= 690000,"#0000FF",
+"#FFA500"
+)
+
+Orders_Color4 = 
+SWITCH(
+    TRUE(),
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "Central") <= 400000, "#ff0000",
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "Central") <= 690000, "#0000FF",
+    "#FFA500",
+
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "East") <= 400000, "#ff0000",
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "East") <= 690000, "#0000FF",
+    "#FFA500",
+
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "South") <= 400000, "#ff0000",
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "South") <= 690000, "#0000FF",
+    "#FFA500",
+
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "West") <= 400000, "#ff0000",
+    CALCULATE(SUM(Orders[Sales]), Orders[Region] = "West") <= 690000, "#0000FF",
+    "#FFA500"
+)
+
+
+
+Orders_Color6 = 
+SWITCH(
+    TRUE(),
+    Orders[Region] = "Central" && Orders[Sales] <= 400000, "#ff0000",  // Red for Central with sales <= 400,000
+    Orders[Region] = "Central" && Orders[Sales] <= 690000, "#0000FF",  // Blue for Central with sales <= 690,000
+    Orders[Region] = "Central", "#FFA500",  // Orange for Central with sales > 690,000
+
+    Orders[Region] = "East" && Orders[Sales] <= 400000, "#0000FF",  // Red for East with sales <= 400,000
+    Orders[Region] = "East" && Orders[Sales] <= 690000, "#0000FF",  // Blue for East with sales <= 690,000
+    Orders[Region] = "East", "#FFA500",  // Orange for East with sales > 690,000
+
+    Orders[Region] = "South" && Orders[Sales] <= 400000, "#ff0000",  // Red for South with sales <= 400,000
+    Orders[Region] = "South" && Orders[Sales] <= 690000, "#0000FF",  // Blue for South with sales <= 690,000
+    Orders[Region] = "South", "#FFA500",  // Orange for South with sales > 690,000
+
+    Orders[Region] = "West" && Orders[Sales] <= 400000, "#ff0000",  // Red for West with sales <= 400,000
+    Orders[Region] = "West" && Orders[Sales] <= 690000, "#0000FF",  // Blue for West with sales <= 690,000
+    Orders[Region] = "West", "#FFA500"  // Orange for West with sales > 690,000
+)
+
+Highest_Lowest Color4 = 
+VAR CurrentSale = SUM(Orders[Sales])
+
+VAR HighestValue =
+    MAXX(
+        ALLSELECTED(Orders[Sub-Category]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+VAR LowestValue =
+    MINX(
+        ALLSELECTED(Orders[Sub-Category]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+RETURN
+IF(
+    CurrentSale = HighestValue, "#73B761",     -- Green (highest)
+    IF(
+        CurrentSale = LowestValue, "#DB271C",  -- Red (lowest)
+        "#5AA9E6"                              -- Default blue
+    )
+)
+
+
+Highest_Lowest Color4_Region = 
+VAR CurrentSale = SUM(Orders[Sales])
+
+VAR HighestValue =
+    MAXX(
+        ALLSELECTED(Orders[Region]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+VAR LowestValue =
+    MINX(
+        ALLSELECTED(Orders[Region]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+RETURN
+IF(
+    CurrentSale = HighestValue, "#73B761",     -- Green (highest)
+    IF(
+        CurrentSale = LowestValue, "#DB271C",  -- Red (lowest)
+        "#5AA9E6"                              -- Default blue
+    )
+)
+
+Profit_Trend_Icon = 
+SWITCH(
+    TRUE(),
+    [Total_Profit_Measure1] > 0, "🟢 ↑",
+    [Total_Profit_Measure1] < 0, "🔴 ↓",
+    "➖"
+)
+
+Total_Profit_Measure1 = SUM('Orders'[Total Profit])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Filtercondition_Phoenix = IF(Orders[City]="Austin",0,Orders[Total Sales] - Orders[Total Sales] * 0.18)
+
+Filtercondition_Phoenix = IF(Orders[City]<>"Austin",0,Orders[Total Sales] - Orders[Total Sales] * 0.28)
+
+Filtercondition_Phoenix = IF(Orders[City]="Phoenix","ACTIVE","NOT_ACTIVE")
+
+discount = IF('Orders'[Category]="Furniture",([Amount]-[Amount]*0.30),([Amount]))
+
+Filtercondition_Austin = IF(Orders[City]="Austin","ACTIVE","NOT_ACTIVE")
+
+
+
+Highest_Lowest Color4 = 
+VAR CurrentSale = SUM(Orders[Sales])
+
+VAR HighestValue =
+    MAXX(
+        ALLSELECTED(Orders[Sub-Category]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+VAR LowestValue =
+    MINX(
+        ALLSELECTED(Orders[Sub-Category]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+RETURN
+IF(
+    CurrentSale = HighestValue, "#3df50bff",     -- Green (highest)
+    IF(
+        CurrentSale = LowestValue, "#f3170cff",  -- Red (lowest)
+        "#5AA9E6"                              -- Default blue
+    )
+)
+
+
+
+
+High_Low_Color_Transparent = 
+
+VAR CurrentSale = SUM(Orders[Sales])
+
+VAR HighestValue =
+    MAXX(
+        ALL(Orders[Sub-Category]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+VAR LowestValue =
+    MINX(
+        ALL(Orders[Sub-Category]),
+        CALCULATE(SUM(Orders[Sales]))
+    )
+
+RETURN
+IF(
+    CurrentSale = HighestValue, "#73B761",     -- Green (highest)
+    IF(
+        CurrentSale = LowestValue, "#DB271C",  -- Red (lowest)
+        "#FFFFFF00"                            -- Transparent for all others
+    )
+)
+
+
+
+Step-1
+
+Sales rev = sum(Sheet2[December])
+
+Sale_rev1 = sum(Orders[Sales])
+
+Step-2
+
+Highest_Lowest Value1 =
+
+var highestvalue = MAXX(ALLSELECTED(Orders[Sales]),[Sale_rev1])
+
+var lowestvalue = MINX(ALLSELECTED(Orders[Sales]),[Sale_rev1])
+
+return
+
+IF([Sales rev] = highestvalue,"#73B761",
+
+IF([Sales rev] = lowestvalue,"#DB271C"))
+
+
+
+
+
+
+
+
+
+Open the Power BI desktop and load the data into it, Click on the Table Tools tab -> New Table from the ribbon.
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >10 )
+
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] =10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <5 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >5 )
+
+
+
+
+
+
+
+myDiscount% = 
+IF(
+    'Orders'[Category] = "Furniture" && 'Orders'[Sub-Category] = "Chairs",
+    [Total Sales] - [Total Sales] * 0.30,
+    [Total Sales]
+)
+
+
+
+Filtercondition_Phoenix = IF(Orders[City]="Phoenix","ACTIVE","NOT_ACTIVE")
+
+discount = IF('Orders'[Category]="Furniture",([Amount]-[Amount]*0.30),([Amount]))
+
+Filtercondition_Austin = IF(Orders[City]="Austin","ACTIVE","NOT_ACTIVE")
+
+
+
+Discounted_Price = 
+    IF(
+        Orders[Region] = "East" || Orders[Region] = "Central", 
+        Orders[Total_Sales_New] * 0.15, 
+        Orders[Total_Sales_New]
+    )
+
+
+
+
+
+Step-1
+
+Sales rev = sum(Sheet2[December])
+
+Sale_rev1 = sum(Orders[Sales])
+
+Step-2
+
+Highest_Lowest Value1 =
+
+var highestvalue = MAXX(ALLSELECTED(Orders[Sales]),[Sale_rev1])
+
+var lowestvalue = MINX(ALLSELECTED(Orders[Sales]),[Sale_rev1])
+
+return
+
+IF([Sales rev] = highestvalue,"#73B761",
+
+IF([Sales rev] = lowestvalue,"#DB271C"))
+
+
+Open the Power BI desktop and load the data into it, Click on the Table Tools tab -> New Table from the ribbon.
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >10 )
+
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] =10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <5 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >5 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var x=12
+var y =4
+z=x+y
+
+Date of creation: Project year
+Assessment year= Actual Assessment Closure Year
+
+Development =Actual RFA Year
+
+RFL= Closure Year
+
+All to be connected with Calendar Year
+
+
+RAWDATA_ProjectDate = DATE(RAWDATA[Project Year], 1, 1)
+-- Total Sales by Project Date
+Proposal Label by ProjectDate1 = 
+CALCULATE(
+    [Proposal Label],
+    USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ProjectDate])
+)
+RAWDATA_AssessmentClosureDate = DATE(RAWDATA[Actual Assessement Closer Year], 1, 1)
+-- Total Sales by Actual Assessment Closure Date
+TotalSales by AssessmentClosure = 
+CALCULATE(
+    [ActualAssessmentClosureDate],
+    USERELATIONSHIP(CALENDER[Date], RAWDATA[RAWDATA_AssessmentClosureDate])
+)
+
+RAWDATA_RFADate
+RAWDATA_RFADate = DATE(RAWDATA[Actual RFA Year], 1, 1)
+TotalSales by RFA = 
+CALCULATE(
+    [RAWDATA_RFADate],
+    USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_RFADate])
+)
+
+
+RAWDATA_ClosureDate = DATE(RAWDATA[Closure Year], 1, 1)
+
+TotalSales by Closure = 
+CALCULATE(
+    [ActualAssessmentClosureDate],
+    USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ClosureDate])
+)
+
+Proposal Label by ProjectDate2 = 
+CALCULATE(
+    [Proposal Name Count],
+    USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ProjectDate])
+)
+
+
+SelectedDateType = SELECTEDVALUE(DateType[DateType])
+
+Total Sales by DateType = 
+SWITCH(
+    [SelectedDateType],
+    "Project Date", 
+        CALCULATE([Proposal Label],USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ProjectDate])),
+    "Assessment Closure Date", 
+        CALCULATE( [ActualAssessmentClosureDate],
+    USERELATIONSHIP(CALENDER[Date], RAWDATA[RAWDATA_AssessmentClosureDate])
+),
+    "RFA Date", 
+        CALCULATE([RAWDATA_RFADate],USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_RFADate])),
+    "Closure Date",
+        CALCULATE([ActualAssessmentClosureDate],USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ClosureDate]))
+)
+
+Total Proposals by DateType = 
+SWITCH(
+    [SelectedDateType],
+    
+    "Project Date", 
+        CALCULATE(
+            COUNT(RAWDATA[Proposal Name]),
+            USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ProjectDate])
+        ),
+
+    "Assessment Closure Date", 
+        CALCULATE(
+            COUNT(RAWDATA[Proposal Name]),
+            USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_AssessmentClosureDate])
+        ),
+
+    "RFA Date", 
+        CALCULATE(
+            COUNT(RAWDATA[Proposal Name]),
+            USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_RFADate])
+        ),
+
+    "Closure Date",
+        CALCULATE(
+            COUNT(RAWDATA[Proposal Name]),
+            USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ClosureDate])
+        )
+)
+
+
+Total Sales by DateType2_new = 
+SWITCH(
+    [SelectedDateType],
+    "Project Date", 
+        CALCULATE([Proposal Name Count],USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ProjectDate])),
+    "Assessment Closure Date", 
+        CALCULATE( [Proposal Name Count],
+    USERELATIONSHIP(CALENDER[Date], RAWDATA[RAWDATA_AssessmentClosureDate])
+),
+    "RFA Date", 
+        CALCULATE([Proposal Name Count],USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_RFADate])),
+    "Closure Date",
+        CALCULATE([Proposal Name Count],USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ClosureDate]))
+)
+
+
+
+
+Total Sales by DateType = 
+SWITCH(
+    [SelectedDateType],
+    
+    "Project Date", 
+        CALCULATE([Total Sales], USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ProjectDate])),
+
+    "Assessment Closure Date", 
+        CALCULATE([Total Sales], USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_AssessmentClosureDate])),
+
+    "RFA Date", 
+        CALCULATE([Total Sales], USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_RFADate])),
+
+    "Closure Date",
+        CALCULATE([Total Sales], USERELATIONSHIP('CALENDAR'[Date], RAWDATA[RAWDATA_ClosureDate]))
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Total Sales by Actual RFA Date
+TotalSales by RFA = 
+CALCULATE(
+    [Total Sales],
+    USERELATIONSHIP(CALENDER[Date], RAWDATA[ActualRFADate])
+)
+
+-- Total Sales by Closure Date
+TotalSales by Closure = 
+CALCULATE(
+    [Total Sales],
+    USERELATIONSHIP(CALENDER[Date], RAWDATA[ClosureDate])
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+myProposal Label Displaynew = 
+
+//var1
+VAR YearSelected = SELECTEDVALUE(YearTable2[Year])
+//var2
+VAR CountThisYear = 
+    CALCULATE(
+        COUNT(RAWDATA[Proposal Name]),
+        TREATAS({YearSelected}, RAWDATA[Actual Assessement Closer Year])
+    )
+
+    //var3
+VAR CountLastYear =
+    CALCULATE(
+        COUNT(RAWDATA[Proposal Name]),
+        TREATAS({YearSelected - 1}, RAWDATA[Actual Assessement Closer Year])
+    )
+
+    //var4
+VAR Change = DIVIDE(CountThisYear - CountLastYear, CountLastYear, 0)
+//var5
+VAR Arrow = IF(Change > 0, " ↑", IF(Change < 0, " ↓", " →"))
+RETURN
+    CountThisYear & " (" & FORMAT(Change, "0%") & Arrow & ")"
+
+
+
+
+Proposal Label Display = 
+VAR YearSelected = SELECTEDVALUE(YearTable2[Year])
+VAR CountThisYear = 
+    CALCULATE(
+        COUNT(RAWDATA[Proposal Name]),
+        TREATAS({YearSelected}, RAWDATA[Actual Assessement Closer Year])
+    )
+VAR CountLastYear =
+    CALCULATE(
+        COUNT(RAWDATA[Proposal Name]),
+        TREATAS({YearSelected - 1}, RAWDATA[Actual Assessement Closer Year])
+    )
+VAR Change = DIVIDE(CountThisYear - CountLastYear, CountLastYear, 0)
+VAR Arrow = 
+    IF(Change > 0, "🟢↑", IF(Change < 0, "🔴↓", " →"))
+RETURN
+    CountThisYear & " (" & FORMAT(Change, "0%") & Arrow & ")"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Discounted_Price = 
+    IF(
+        Orders[Category] = "Technology",  Orders[Total_Sales1]- Orders[Total_Sales1] * 0.15, 
+        Orders[Total_Sales1]
+    )
+
+
+
+1.
+Calculatedmonth_3digit = LEFT('Orders (2)'[Order Date].[Month], 3)
+
+2.
+z = 
+IF (
+    'Orders'[State]<> "GOA" ,
+    "ClassA-12% Discount",
+    "ClassB-No Discount"
+)
+
+3.
+FilterCondition1 = 
+IF (
+    'Orders'[State]= "GOA" ,
+    "Active",
+    "Not Active"
+)
+
+
+discount = IF('Orders'[revFilterConditiongoa]="Lahore",([Amount]-[Amount]*0.30),([Amount]))
+Column1mytax = IF('Details'[revFilterConditiongoa]="Bihar",([Amount]+[Amount]*.29),([Amount]+[Amount]*0.09))
+
+
+
+//#Table  creation....
+Filters_rows_notGoa = FILTER ( ALLSELECTED ('Orders'[State]), 'Orders'[State]<> "GOA" )
+
+Have to do Relationship....
+
+
+//revFilterConditiongoa = RELATED('Filters rows_notGoa'[State])
+
+
+Column1mytax = IF('Details'[revFilterConditiongoa]="Bihar",([Amount]+[Amount]*.29),([Amount]+[Amount]*0.09))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Open the Power BI desktop and load the data into it, Click on the Table Tools tab -> New Table from the ribbon.
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >10 )
+
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] =10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <5 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >5 )
+
+
+
+
+
+
+
+
+
+
+
+
+Filtercondition = IF(emprecordbycityLondon[City]="Phoenix","ACTIVE","NOT ACTIVE")
+
+FilterSalary1 = IF(emprecordbycityLondon[Salary]>50000,"GRADE-A","GRADE-B")
+
+Sal_incr = 'emprecordbycityLondon'[Salary]*0.15
+
+
+
+
+
+
+
+//DAX code....
+Filtercondition_Phoenix = IF(emprecordbycityLondon[City]="Phoenix","ACTIVE","NOT ACTIVE")
+
+
+Discounted_Price = IF(Orders[Category] = "Technology",  Orders[Total_Sales1]- Orders[Total_Sales1] * 0.15,Orders[Total_Sales1])
+
+
+
+Average Filtered TTM1 = 
+VAR FilteredTable =
+    ADDCOLUMNS (
+        VALUES('RAWDATA (2)'[SID]),
+        "FilteredTTM",
+            VAR RawValue = CALCULATE(SELECTEDVALUE('RAWDATA (2)'[TTM(Weeks)]))
+            VAR NumValue =
+                IF (
+                    NOT ISERROR(SEARCH("a", RawValue)) || RawValue = "Not RFL'd",
+                    BLANK(),
+                    VALUE(RawValue)
+                )
+            RETURN
+                IF (
+                    NOT ISBLANK(NumValue) && NumValue < 85.7,
+                    NumValue,
+                    BLANK()
+                )
+    )
+RETURN
+    AVERAGEX(
+        FILTER(FilteredTable, NOT ISBLANK([FilteredTTM])),
+        [FilteredTTM]
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Discounted_Price = 
+    IF(
+        Orders[Region] = "East" || Orders[Region] = "Central", 
+        Orders[Total_Sales_New] * 0.15, 
+        Orders[Total_Sales_New]
+    )
+
+Discounted_Price = 
+    IF(
+        [Region] = "East" || [Region] = "Central", 
+        [Total_Sales_New] * 0.15, 
+        [Total_Sales_New]
+    )
+
+
+Open the Power BI desktop and load the data into it, Click on the Table Tools tab -> New Column from the ribbon.
+FilterCondition = 
+IF (
+    'Tab1(2)'[Attendances] = 0 || ' Tab1(2)'[Subject] = "Physics",
+    "Filter",
+    "Not Filter"
+)
+
+Discounted_Price = 
+    IF(
+        Orders[Region] = "East" || Orders[Region] = "Central", 
+        Orders[Total_Sales_New] * 0.15, 
+        Orders[Total_Sales_New]
+    )
+
+
+
+
+
+Column = SWITCH(
+TRUE(),
+'Table'[Country] = "UK" && 'Table'[Gender] = "Female" && 'Table'[Ethnicity]="Black" || 'Table'[Ethnicity]="Arabic", "Yes",
+"No")
+
+
+Then you can 
+countrows= Calculate(Count('Table'[Country]),'Table'[Column] = "Yes")
+
+Needed = 
+    CALCULATE (
+        COUNTROWS ( Sheet1 ),
+        Sheet1[Ethnicity] IN { "Black", "Arabic" },
+        Sheet1[Gender] = "Female"
+    )
+
+
+
+New_Discount = 
+IF(
+    AND([Category] = "Furniture", [Sub-Category] = "Appliances"),
+    [Total_Sales_New] * 0.20,  // Apply 20% discount
+    [Total_Sales_New]         // No discount
+)
+
+
+Open the Power BI desktop and load the data into it, Click on the Table Tools tab -> New Table from the ribbon.
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 4 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] = 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <> 0 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >10 )
+
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] =10 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <5 )
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] >5 )
+
+
+
+
+
+Open the Power BI desktop and load the data into it, Click on the Table Tools tab -> New Column from the ribbon.
+FilterCondition = 
+IF (
+    'Tab1(2)'[Attendances] = 0 || ' Tab1(2)'[Subject] = "Physics",
+    "Filter",
+    "Not Filter"
+)
+
+FilterCondition = 
+IF (
+    'Tab1 (3)'[Attendances] <> 0 || 'Tab1 (3)'[Subject] = "Physics",
+    "Filter",
+    "Not Filter"
+)
+
+rev_FilterCondition = 
+IF (
+    'Tab1(2)'[Attendances] <> 0 || ' Tab1(2)'[Subject] <> "Physics",
+    "Filter",
+    "Not Filter"
+)
+
+
+
+
+//Today...
+
+Orders_Color = 
+
+SWITCH(TRUE(),
+SUM(Orders[Sales])<= 400000,"#ff0000",
+SUM(Orders[Sales])<= 690000,"#0000FF",
+"#FFA500"
+)
+
+
+Measure1 = 
+var a = RANKX(ALL('Table'[value]),'Table'[value],MIN('Table'[value]))
+return
+SWITCH(TRUE(),
+a=1,"#ff0000",
+a=2,"#0000FF",
+a=3,"#FFFF00",
+a>3,"#FFA500"
+)
+
+
+Orders_Color = 
+
+SWITCH(TRUE(),
+SUM(Orders[Sales])<= 400000,"#ff0000",
+SUM(Orders[Sales])<= 690000,"#0000FF",
+"#FFA500"
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Step-1
+
+Sales rev = sum(Sheet2[December])
+
+Sale_rev1 = sum(Orders[Sales])
+
+Step-2
+
+Highest_Lowest Value1 =
+
+var highestvalue = MAXX(ALLSELECTED(Orders[Sales]),[Sale_rev1])
+
+var lowestvalue = MINX(ALLSELECTED(Orders[Sales]),[Sale_rev1])
+
+return
+
+IF([Sales rev] = highestvalue,"#73B761",
+
+IF([Sales rev] = lowestvalue,"#DB271C"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Filters rows_classicmodel = FILTER ( UNION (productlines,products), [productLine] = 'Motorcycles' )
+
+mysqlopcs_fi_Filters rows = FILTER ( ALLSELECTED('opcs_fi_oy employee') , 'opcs_fi_oy employee'[Age] > 25 )
+
+
+Filters rows_classicmodel1 =  NATURALINNERJOIN( 'classicmodels products (2)', 'classicmodels productlines (2)' ))
+mysqlopcs_fi_Filters rows = FILTER ( ALLSELECTED('opcs_fi_oy employee') , 'opcs_fi_oy employee'[Age] > 25 )
+
+mysqlopcs_fi_Filters= FILTER(ALLSELECTED('opcs_fi_oy'),'opcs_fi_oy'[Age]>26)
+
+Filters rows = FILTER ( UNION (Tab1, Tab2), [Attendances] <10 )
+
+mysqlopcs_fi_Filters1= FILTER(UNION('emp','product',[productid]<10))
+
+
+DAX-
+
+
+
+
+total sales = Orders[Quantity]*Orders[Sales]
+total profit = Orders[Profit]*Orders[Quantity]
+total discount = Orders[Discount]*Orders[Quantity]
+total cost = Orders[total sales]-Orders[total profit]
+
+
+
+
+
+
+
+
+
+
+

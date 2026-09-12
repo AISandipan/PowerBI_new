@@ -1,0 +1,581 @@
+
+
+
+Column_Name =
+IF(
+    Orders[Region] IN {"East", "West"},
+    "ACTIVE",
+    "NOT_ACTIVE"
+)
+```
+
+
+
+ ## 1\. Region membership using `IN`
+
+```
+Region_Filter =
+IF(
+    Orders[Region] IN {"East", "Central"},
+    "ACTIVE",
+    "NOT_ACTIVE"
+)
+```
+
+ **Meaning:** East or Central → `ACTIVE`; otherwise → `NOT_ACTIVE`.
+
+---
+
+ ## 2\. City membership
+
+```
+City_Filter =
+IF(
+    Orders[City] IN {"Phoenix", "Austin", "Dallas"},
+    "SELECTED CITY",
+    "OTHER CITY"
+)
+```
+
+---
+
+ ## 3\. Phoenix OR Austin with discount
+
+ Instead of:
+
+```
+IF(
+    Orders[City] = "Phoenix" || Orders[City] = "Austin",
+    ...
+)
+```
+
+ use:
+
+```
+City_Discount_Price =
+IF(
+    Orders[City] IN {"Phoenix", "Austin"},
+    Orders[Total_sales] * 0.80,
+    Orders[Total_sales]
+)
+```
+
+ Phoenix and Austin get a **20% discount**.
+
+---
+
+ ## 4\. Multiple categories
+
+```
+Category_Discount =
+IF(
+    Orders[Category] IN {"Technology", "Furniture"},
+    Orders[Total_sales] * 0.90,
+    Orders[Total_sales]
+)
+```
+
+ Technology and Furniture → 10% discount.
+
+---
+
+ ## 5\. Multiple sub-categories
+
+```
+SubCategory_Filter =
+IF(
+    Orders[Sub-Category] IN {"Chairs", "Tables", "Bookcases"},
+    "FURNITURE ITEM",
+    "OTHER ITEM"
+)
+```
+
+---
+
+ ## 6\. Region + category using `IN`
+
+```
+Regional_Category_Discount =
+IF(
+    Orders[Region] IN {"East", "Central"}
+        && Orders[Category] IN {"Technology", "Furniture"},
+    Orders[Total_sales] * 0.75,
+    Orders[Total_sales]
+)
+```
+
+ This gives a **25% discount** when:
+
+ - Region = East or Central
+- AND Category = Technology or Furniture
+
+---
+
+ ## 7\. Phoenix/Austin special pricing
+
+```
+City_Special_Price =
+VAR SalesAmount = Orders[Total_sales]
+RETURN
+    IF(
+        Orders[City] IN {"Phoenix", "Austin"},
+        SalesAmount * 0.80,
+        SalesAmount
+    )
+```
+
+ Phoenix and Austin → 20% discount.
+
+---
+
+ ## 8\. `IN` with `SWITCH(TRUE())`
+
+ This is a very useful pattern:
+
+```
+City_Discount_Rate =
+SWITCH(
+    TRUE(),
+    Orders[City] IN {"Phoenix", "Austin"}, 0.20,
+    Orders[City] IN {"Dallas", "Houston"}, 0.15,
+    Orders[City] IN {"Seattle", "Denver"}, 0.10,
+    0
+)
+```
+
+ Then apply the discount:
+
+```
+City_Discounted_Price =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+        Orders[City] IN {"Phoenix", "Austin"}, 0.20,
+        Orders[City] IN {"Dallas", "Houston"}, 0.15,
+        Orders[City] IN {"Seattle", "Denver"}, 0.10,
+        0
+    )
+RETURN
+    SalesAmount * (1 - DiscountRate)
+```
+
+---
+
+ ## 9\. Category membership with `IN` \+ `SWITCH`
+
+```
+Category_Discounted_Price =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+        Orders[Category] IN {"Technology", "Furniture"}, 0.20,
+        Orders[Category] IN {"Office Supplies"}, 0.10,
+        0
+    )
+RETURN
+    SalesAmount * (1 - DiscountRate)
+```
+
+---
+
+ ## 10\. Region membership with `IN` + `VAR`
+
+```
+Regional_Discount_Price =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+        Orders[Region] IN {"East", "Central"}, 0.15,
+        Orders[Region] IN {"West", "South"}, 0.10,
+        0
+    )
+RETURN
+    SalesAmount * (1 - DiscountRate)
+```
+
+---
+
+ ## 11\. Furniture + Chairs \+ specific regions
+
+ A more advanced example:
+
+```
+Furniture_Chair_Regional_Discount =
+VAR SalesAmount = Orders[Total_sales]
+RETURN
+    IF(
+        Orders[Category] = "Furniture"
+            && Orders[Sub-Category] = "Chairs"
+            && Orders[Region] IN {"East", "Central"},
+        SalesAmount * 0.70,
+        SalesAmount
+    )
+```
+
+ Furniture \+ Chairs + East/Central → **30% discount**.
+
+---
+
+ ## 12\. `IN` for order classification
+
+```
+Order_Classification =
+SWITCH(
+    TRUE(),
+
+    Orders[City] IN {"Phoenix", "Austin"}
+        && Orders[Category] IN {"Technology", "Furniture"},
+    "SPECIAL ORDER",
+
+    Orders[Region] IN {"East", "Central"},
+    "EAST/CENTRAL ORDER",
+
+    Orders[Category] IN {"Office Supplies"},
+    "OFFICE SUPPLIES ORDER",
+
+    "NORMAL ORDER"
+)
+```
+
+---
+
+ ## 13\. `NOT IN` equivalent
+
+ DAX doesn't have a separate `NOT IN` operator. You can use:
+
+```
+City_Not_Phoenix =
+IF(
+    NOT Orders[City] IN {"Phoenix"},
+    "ACTIVE",
+    "NOT_ACTIVE"
+)
+```
+
+ Or, for multiple cities:
+
+```
+City_Not_Selected =
+IF(
+    NOT Orders[City] IN {"Phoenix", "Austin"},
+    "ACTIVE",
+    "NOT_ACTIVE"
+)
+```
+
+ This is equivalent to saying:
+
+ > City is neither Phoenix nor Austin.
+
+---
+
+ ## 14\. Your existing OR formula converted to `IN`
+
+ You currently have:
+
+```
+Discounted_Price_%_or =
+IF(
+    Orders[Region] = "East" || Orders[Region] = "Central",
+    Orders[Total_Sales_New] * 0.15,
+    Orders[Total_Sales_New]
+)
+```
+
+ Using `IN`:
+
+```
+Discounted_Price_IN =
+IF(
+    Orders[Region] IN {"East", "Central"},
+    Orders[Total_Sales_New] * 0.15,
+    Orders[Total_Sales_New]
+)
+```
+
+ **Important:** Your original formula multiplies sales by `0.15`, which means it returns **15% of sales**, not "sales after a 15% discount."
+
+ If you mean a 15% discount, use:
+
+```
+Discounted_Price_IN =
+IF(
+    Orders[Region] IN {"East", "Central"},
+    Orders[Total_Sales_New] * 0.85,
+    Orders[Total_Sales_New]
+)
+```
+
+ Because:
+
+```
+Discounted Price = Sales × (1 - Discount%)
+                 = Sales × (1 - 0.15)
+                 = Sales × 0.85
+```
+
+ ### 15\. Best practice example for your DAX practice
+
+```
+IN_Membership_Discount =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+
+        Orders[City] IN {"Phoenix", "Austin"},
+            0.30,
+
+        Orders[Region] IN {"East", "Central"}
+            && Orders[Category] IN {"Technology", "Furniture"},
+            0.20,
+
+        Orders[Category] IN {"Office Supplies"},
+            0.10,
+
+        0
+    )
+RETURN
+    SalesAmount * (1 - DiscountRate)
+```
+
+Sure — here are **15 more DAX `IN` membership practice examples in one place**, using your `Orders` table.
+
+ ## 15 DAX `IN` Membership Examples
+
+ ### 1\. Region membership
+
+```
+Region_Status =
+IF(
+    Orders[Region] IN {"East", "West"},
+    "SELECTED",
+    "OTHER"
+)
+```
+
+ ### 2\. City membership
+
+```
+City_Status =
+IF(
+    Orders[City] IN {"Phoenix", "Austin", "Dallas"},
+    "TARGET CITY",
+    "OTHER CITY"
+)
+```
+
+ ### 3\. Category membership
+
+```
+Category_Status =
+IF(
+    Orders[Category] IN {"Technology", "Furniture"},
+    "TARGET CATEGORY",
+    "OTHER CATEGORY"
+)
+```
+
+ ### 4\. Multiple sub-categories
+
+```
+SubCategory_Status =
+IF(
+    Orders[Sub-Category] IN {"Chairs", "Tables", "Bookcases"},
+    "SELECTED ITEM",
+    "OTHER ITEM"
+)
+```
+
+ ### 5\. Region-based discount
+
+```
+Region_Discount_10 =
+IF(
+    Orders[Region] IN {"East", "Central"},
+    Orders[Total_sales] * 0.90,
+    Orders[Total_sales]
+)
+```
+
+ East/Central → **10% discount**.
+
+ ### 6\. City-based discount
+
+```
+City_Discount_20 =
+IF(
+    Orders[City] IN {"Phoenix", "Austin"},
+    Orders[Total_sales] * 0.80,
+    Orders[Total_sales]
+)
+```
+
+ Phoenix/Austin → **20% discount**.
+
+ ### 7\. Category-based discount
+
+```
+Category_Discount_15 =
+IF(
+    Orders[Category] IN {"Technology", "Furniture"},
+    Orders[Total_sales] * 0.85,
+    Orders[Total_sales]
+)
+```
+
+ Technology/Furniture → **15% discount**.
+
+ ### 8\. Region + Category
+
+```
+Region_Category_Status =
+IF(
+    Orders[Region] IN {"East", "Central"}
+        && Orders[Category] IN {"Technology", "Furniture"},
+    "SPECIAL",
+    "NORMAL"
+)
+```
+
+ ### 9\. Quantity membership
+
+ You can also use `IN` with numeric values:
+
+```
+Quantity_Status =
+IF(
+    Orders[Quantity] IN {1, 5, 10, 15, 20},
+    "SPECIAL QUANTITY",
+    "NORMAL QUANTITY"
+)
+```
+
+ ### 10\. Specific sales values
+
+```
+Sales_Check =
+IF(
+    Orders[Sales] IN {100, 200, 500, 1000},
+    "MATCHED",
+    "NOT MATCHED"
+)
+```
+
+ ### 11\. Phoenix + Austin special price
+
+```
+Special_City_Price =
+VAR SalesAmount = Orders[Total_sales]
+RETURN
+    IF(
+        Orders[City] IN {"Phoenix", "Austin"},
+        SalesAmount * 0.70,
+        SalesAmount
+    )
+```
+
+ Phoenix/Austin → **30% discount**.
+
+ ### 12\. NOT IN membership
+
+```
+Non_Target_Region =
+IF(
+    NOT Orders[Region] IN {"East", "Central"},
+    "NON TARGET",
+    "TARGET"
+)
+```
+
+ This means:
+
+ > If Region is NOT East or Central → NON TARGET.
+
+ ### 13\. `IN` with `SWITCH`
+
+```
+Region_Discount_Rate =
+SWITCH(
+    TRUE(),
+
+    Orders[Region] IN {"East", "Central"}, 0.20,
+
+    Orders[Region] IN {"West", "South"}, 0.10,
+
+    0
+)
+```
+
+ ### 14\. Multiple city discount rates
+
+```
+City_Discount_Rate =
+SWITCH(
+    TRUE(),
+
+    Orders[City] IN {"Phoenix", "Austin"}, 0.30,
+
+    Orders[City] IN {"Dallas", "Houston"}, 0.20,
+
+    Orders[City] IN {"Seattle", "Denver"}, 0.10,
+
+    0
+)
+```
+
+ ### 15\. Advanced `IN` example
+
+```
+Advanced_IN_Discount =
+VAR SalesAmount = Orders[Total_sales]
+VAR DiscountRate =
+    SWITCH(
+        TRUE(),
+
+        Orders[City] IN {"Phoenix", "Austin"}
+            && Orders[Category] IN {"Technology", "Furniture"},
+            0.30,
+
+        Orders[Region] IN {"East", "Central"}
+            && Orders[Category] IN {"Office Supplies"},
+            0.20,
+
+        Orders[Sub-Category] IN {"Chairs", "Tables"},
+            0.15,
+
+        Orders[Region] IN {"West", "South"},
+            0.10,
+
+        0
+    )
+RETURN
+    SalesAmount * (1 - DiscountRate)
+```
+
+ ### Quick pattern to remember
+
+```
+Column IN {"Value1", "Value2", "Value3"}
+```
+
+ is basically a cleaner way of writing:
+
+```
+Column = "Value1"
+    || Column = "Value2"
+    || Column = "Value3"
+```
+
+ And for multiple conditions:
+
+```
+Orders[Region] IN {"East", "Central"}
+    && Orders[Category] IN {"Technology", "Furniture"}
+```
+
+ This is one of the most useful patterns for **DAX interview questions and Power BI calculated-column practice**.

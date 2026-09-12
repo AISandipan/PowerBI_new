@@ -1,0 +1,118 @@
+
+
+
+
+CALCULATE(
+        which,where
+        
+    )
+
+
+w23
+
+ISOWeekFormatted = "W" & FORMAT(WEEKNUM(RAWDATA[Date of Creation], 21), "00")
+YearWeek = YEAR(RAWDATA[Date of Creation]) & "-W" & FORMAT(WEEKNUM(RAWDATA[Date of Creation], 21), "00")
+
+WeekNumber = WEEKNUM(RAWDATA[Date of Creation])
+mYear = YEAR(Record_Sheet[Date of Creation])
+mYear = YEAR(RAWDATA[Date of Creation])
+mMonth = FORMAT(RAWDATA[Date of Creation], "MMMM")
+mMonthNumber = MONTH(RAWDATA[Date of Creation])
+
+
+Last_Open2 = 
+VAR LastDate1 =
+    CALCULATE(
+        MAX(Record_Sheet[Report Date]),
+        ALL(Record_Sheet)
+    )
+RETURN
+    CALCULATE(
+        MAX(Record_Sheet[Open Including SD]),
+        Record_Sheet[Report Date] = LastDate1
+    )
+
+
+
+Total_Sales_new = Orders[Quantity] * Orders[Sales]
+
+Total Profit = Orders[Profit]*Orders[Quantity]
+Total Discount = Orders[Discount]*Orders[Quantity]
+Total Cost = Orders[Total Sales]-Orders[Total Profit]
+
+
+Filtercondition_Phoenix = IF(Orders[City]="Phoenix","ACTIVE","NOT_ACTIVE")
+
+Discounted_Price =
+    IF(
+        Orders[Category] = "Technology",  Orders[Total_Sales1]- Orders[Total_Sales1] * 0.15,
+        Orders[Total_Sales1]
+    )
+
+
+
+--Measure......
+Orders_Color = 
+
+SWITCH(TRUE(),
+SUM(Orders[Sales])<= 400000,"#ff0000",
+SUM(Orders[Sales])<= 690000,"#0000FF",
+"#FFA500"
+)
+
+
+Orders_Color1 = 
+
+SWITCH(TRUE(),
+SUM(Orders[Sales])<= 400000,"#ff0000",
+SUM(Orders[Sales])<= 690000,"#0000FF",
+"#FFA500"
+)
+
+1. Bed Occupancy Rate
+
+Bed Occupancy Rate = DIVIDE(SUM('Table'[TOTAL PATIENT]), SUM('Table'[NUMBER OF BED]), 0)
+
+//Bed Occupancy Rate = DIVIDE(SUM('DNAME'[TOTAL PATIENT ]), SUM([NUMBER OF BED]), 0)
+2. Blocked Bed Percentage
+
+Blocked Bed % = DIVIDE(SUM('DNAME'[blocked bed]), SUM('DNAME'[NUMBER OF BED]), 0)
+3. Discharge Rate
+
+Discharge Rate = DIVIDE(SUM('DNAME'[DISCHARGE]), SUM('DNAME'[TOTAL PATIENT]), 0)
+4. Pending Discharge Rate
+
+Pending Discharge Rate = DIVIDE(SUM('DNAME'[pending discharge]), SUM('DNAME'[TOTAL PATIENT]), 0)
+5. Admission Rate
+
+Admission Rate = DIVIDE(SUM('DNAME'[ADMISSION]), SUM('DNAME'[NUMBER OF BED]), 0)
+6. Staff-to-Patient Ratio (Day)
+
+Day Staff to Patient Ratio = DIVIDE(SUM('DNAME'[day staff]), SUM('DNAME'[TOTAL PATIENT]), 0)
+7. Staff-to-Patient Ratio (Night)
+
+Night Staff to Patient Ratio = DIVIDE(SUM('DNAME'[night staff]), SUM('DNAME'[TOTAL PATIENT]), 0)
+8. Patients in Isolation Rate
+
+Isolation Rate = DIVIDE(SUM('DNAME'[isolation]), SUM('DNAME'[TOTAL PATIENT]), 0)
+🔍 Optional: Filters (If needed)
+If you want to filter by department or doctor name (D NAME or DNAME), you can add something like:
+
+
+Isolation Rate by Dept = 
+CALCULATE(
+    DIVIDE(SUM('DNAME'[isolation]), SUM('DNAME'[TOTAL PATIENT]), 0),
+    'DNAME'[DNAME] = "Cardiology"
+)
+
+
+
+🔹 1. Daily Admissions Over Time (Line Chart)
+
+Daily Admissions = SUM('DNAME'[ADMISSION])
+Visual: Line or Area chart
+
+Axis: DATE
+
+Values: Daily Admissions
+
